@@ -1,21 +1,33 @@
-from fastapi import FastAPI
-from datetime import datetime
-from app.schemas.task import Task, Tag
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+
+from app.db.database import engine, get_db, Base
+from app.schemas.tag_schema import Tag, TagCreate
+from app.schemas.task_schema import Task, TaskCreate
+from app.crud import create_tag, get_tags, get_tasks, create_task
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 
-@app.get("/", response_model=Task)
-async def root():
-    return Task(
-        id=1,
-        title="Finish CS homework",
-        description="Chapter 5 problems",
-        completed=False,
-        urgent=True,
-        due_at=datetime(2026, 1, 20, 23, 59),
-        tags=[
-            Tag(id=1, name="school", color="#3b82f6"),
-            Tag(id=2, name="hewalth", color="#ef4444")
-        ]
-    )
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to TaskMaster Backend"}
+
+
+@app.get("/tags", response_model=list[Tag])
+def read_tags(db: Session = Depends(get_db)):
+    return get_tags(db)
+
+@app.get("/tasks", response_model=list[Task])
+def read_tasks(db: Session = Depends(get_db)):
+    return get_tasks(db)
+
+@app.post("/tags", response_model=Tag)
+def create_new_tag(tag: TagCreate, db: Session = Depends(get_db)):
+    return create_tag(db, tag)
+
+@app.post("/tasks", response_model=Task)
+def create_new_task(task: TaskCreate, db: Session = Depends(get_db)):
+    return create_task(db, task)
