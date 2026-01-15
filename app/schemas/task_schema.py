@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import date, time
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from app.schemas.tag_schema import Tag
 
 
@@ -9,14 +9,26 @@ class TaskBase(BaseModel):
     description: Optional[str] = None
     completed: bool = False
     urgent: bool = False
-    due_at: Optional[datetime] = None
+
+    due_date: Optional[date] = None
+    due_time: Optional[time] = None
+
+    tags: List[Tag] = []
+
+    @field_validator("due_date", "due_time", mode="before")
+    @classmethod
+    def empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
+
 
 class TaskCreate(TaskBase):
-    tag_ids: List[int] = []
+    pass
+
 
 class Task(TaskBase):
     id: int
-    tags: List[Tag] = []
 
     class Config:
         from_attributes = True
