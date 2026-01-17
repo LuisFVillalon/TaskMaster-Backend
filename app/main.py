@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import OperationalError
+
 
 from app.db.database import engine, Base
 from app.routers import tags_router, tasks_router
