@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from sqlalchemy.orm import Session
 
 from app.db.database import engine, Base
-from app.routers import tags, tasks
+from app.routers import tags_router, tasks_router
 from fastapi.middleware.cors import CORSMiddleware
 
 Base.metadata.create_all(bind=engine)
@@ -21,8 +21,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(tags.router)
-app.include_router(tasks.router)
+app.include_router(tags_router.router)
+app.include_router(tasks_router.router)
 
 @app.get("/")
 def read_root():
