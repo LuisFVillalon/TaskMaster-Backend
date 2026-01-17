@@ -6,19 +6,14 @@ from sqlalchemy.exc import OperationalError
 from app.db.database import engine, Base
 from app.routers import tags_router, tasks_router
 from fastapi.middleware.cors import CORSMiddleware
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 app = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "https://taskmaster-backend-bhccbw.fly.dev"
 ]
 if FRONTEND_URL:
-    origins.append(FRONTEND_URL)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
