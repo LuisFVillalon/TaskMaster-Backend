@@ -6,18 +6,22 @@ from sqlalchemy.exc import OperationalError
 from app.db.database import engine, Base
 from app.routers import tags_router, tasks_router
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
 
-
+load_dotenv()
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 app = FastAPI()
 
 origins = [
     "http://localhost:3000",  # Next.js dev
+    FRONTEND_URL
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
