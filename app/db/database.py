@@ -4,17 +4,24 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-USER = os.getenv("user")
-PASSWORD = os.getenv("password")
-HOST = os.getenv("host")
-PORT = os.getenv("port")
-DBNAME = os.getenv("dbname")
-# DATABASE_URL = os.getenv("DATABASE_URL")
-DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
+# USER = os.getenv("user")
+# PASSWORD = os.getenv("password")
+# HOST = os.getenv("host")
+# PORT = os.getenv("port")
+# DBNAME = os.getenv("dbname")
+DATABASE_URL = os.getenv("DATABASE_URL")
+# DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}"
 
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set")
+
+# Render + SQLAlchemy fix
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 engine = create_engine(
-    DATABASE_URL
+    DATABASE_URL,
+    pool_pre_ping=True
 )
 
 SessionLocal = sessionmaker(
