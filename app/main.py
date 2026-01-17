@@ -15,10 +15,10 @@ FRONTEND_URL = os.getenv("FRONTEND_URL")
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",  # Next.js dev
-    FRONTEND_URL
+    "http://localhost:3000",
 ]
-
+if FRONTEND_URL:
+    origins.append(FRONTEND_URL)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
