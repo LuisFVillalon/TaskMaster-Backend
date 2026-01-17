@@ -21,10 +21,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+def startup():
+    for _ in range(5):
+        try:
+            Base.metadata.create_all(bind=engine)
+            print("✅ Database connected")
+            return
+        except OperationalError as e:
+            print("⏳ Waiting for database...")
+            time.sleep(2)
+    raise RuntimeError("❌ Database unavailable")
+
 app.include_router(tags_router.router)
 app.include_router(tasks_router.router)
 
 @app.get("/")
 def read_root():
-    Base.metadata.create_all(bind=engine)
     return {"message": "Welcome to TaskMaster Backend"}
