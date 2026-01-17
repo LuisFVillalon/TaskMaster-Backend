@@ -30,6 +30,6 @@ class TaskCreate(TaskBase):
 class Task(TaskBase):
     id: int
 
-    class Config:
-        from_attributes = True
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
