@@ -11,7 +11,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "https://taskmaster-backend-bhccbw.fly.dev"
+    "https://task-master-mvp.vercel.app/"
 ]
 if FRONTEND_URL:
 app.add_middleware(
