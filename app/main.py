@@ -5,7 +5,7 @@ from app.db.database import engine, Base
 from app.routers import tags_router, tasks_router
 from fastapi.middleware.cors import CORSMiddleware
 
-Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI()
 
@@ -26,4 +26,5 @@ app.include_router(tasks_router.router)
 
 @app.get("/")
 def read_root():
+    Base.metadata.create_all(bind=engine)
     return {"message": "Welcome to TaskMaster Backend"}
