@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Time
 from sqlalchemy.orm import relationship
-from app.db.database import Base
+from app.database.database import Base
 from app.models.task_tag_model import task_tags
 
 class Task(Base):

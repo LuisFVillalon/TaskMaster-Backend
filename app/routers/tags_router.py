@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.db.database import get_db
+from app.database.database import get_db
 from app.schemas.tag_schema import Tag, TagCreate
 from app.crud.tag_crud import get_tags, create_tag, delete_tag, update_tag
 

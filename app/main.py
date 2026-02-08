@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError
-from app.db.database import engine, Base
-from app.routers import tags_router, tasks_router
+from app.database.database import engine, Base
+from app.routers import tags_router, tasks_router, canvas_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -32,6 +32,7 @@ def startup():
 
 app.include_router(tags_router.router)
 app.include_router(tasks_router.router)
+app.include_router(canvas_router.router)
 
 @app.get("/")
 def read_root():
