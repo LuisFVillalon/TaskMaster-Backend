@@ -1,27 +1,28 @@
 import os
 import httpx
-from dotenv import load_dotenv
 
-load_dotenv()
+def _get_config():
+    token = os.getenv("CANVAS_TOKEN")
+    base_url = os.getenv("CANVAS_API_URL")
 
-CANVAS_TOKEN = os.getenv("CANVAS_TOKEN")
-CANVAS_API_URL = os.getenv("CANVAS_API_URL")
+    if not token or not base_url:
+        raise RuntimeError("Canvas environment variables are not set")
 
-if not CANVAS_TOKEN or not CANVAS_API_URL:
-    raise RuntimeError("Canvas environment variables are not set")
+    return token, base_url.rstrip("/")
 
-def _headers() -> dict:
+def _headers(token: str) -> dict:
     return {
-        "Authorization": f"Bearer {CANVAS_TOKEN}"
+        "Authorization": f"Bearer {token}"
     }
 
 async def get_canvas(path: str, params: dict | None = None):
-    url = f"{CANVAS_API_URL}{path}"
+    token, base_url = _get_config()
+    url = f"{base_url}{path}"
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=15) as client:
         response = await client.get(
             url,
-            headers=_headers(),
+            headers=_headers(token),
             params=params,
         )
 
