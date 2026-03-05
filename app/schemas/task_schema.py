@@ -1,4 +1,4 @@
-from datetime import date, time
+from datetime import date, time, datetime
 from typing import List, Optional
 from pydantic import BaseModel, field_validator
 from app.schemas.tag_schema import Tag
@@ -7,6 +7,7 @@ from app.schemas.tag_schema import Tag
 class TaskBase(BaseModel):
     title: str
     description: Optional[str] = None
+    category: Optional[str] = None
     completed: bool = False
     urgent: bool = False
 
@@ -29,6 +30,8 @@ class TaskCreate(TaskBase):
 
 class Task(TaskBase):
     id: int
+    created_date: datetime
+    completed_date: Optional[datetime] = None
 
     model_config = {
         "from_attributes": True

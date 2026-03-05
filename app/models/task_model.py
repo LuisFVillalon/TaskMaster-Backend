@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Time
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Time, func
 from sqlalchemy.orm import relationship
 from app.database.database import Base
 from app.models.task_tag_model import task_tags
@@ -9,10 +9,13 @@ class Task(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     description = Column(String, nullable=True)
+    category = Column(String, nullable=True)
     completed = Column(Boolean, default=False)
     urgent = Column(Boolean, default=False)
     due_date = Column(DateTime, nullable=True)
     due_time = Column(Time, nullable=True)
+    created_date = Column(DateTime, server_default=func.now(), nullable=False)
+    completed_date = Column(DateTime, nullable=True)
     tags = relationship(
         "Tag",
         secondary=task_tags,
