@@ -14,6 +14,8 @@ class TaskBase(BaseModel):
     due_date: Optional[date] = None
     due_time: Optional[time] = None
 
+    completed_date: Optional[datetime] = None
+
     tags: List[Tag] = []
 
     @field_validator("due_date", "due_time", mode="before")
@@ -31,7 +33,7 @@ class TaskCreate(TaskBase):
 class Task(TaskBase):
     id: int
     created_date: datetime
-    completed_date: Optional[datetime] = None
+
 
     model_config = {
         "from_attributes": True

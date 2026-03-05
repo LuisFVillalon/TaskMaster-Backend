@@ -97,6 +97,7 @@ def update_task(db: Session, task_id: int, task: TaskCreate):
     db_task.urgent = task.urgent
     db_task.due_date = task.due_date
     db_task.due_time = task.due_time
+    db_task.completed_date = task.completed_date
 
     # 3. Clear existing tags
     db_task.tags.clear()
