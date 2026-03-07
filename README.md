@@ -26,7 +26,11 @@ Hope to implement a journal table to the database to interact with.
 - **Read Tasks**: Retrieve all tasks or filter by specific criteria.
 - **Update Tasks**: Modify task details (full update) or toggle completion status.
 - **Delete Tasks**: Remove tasks by ID.
-- **Task Properties**: Each task includes title, description, completed status, urgent flag, due date, and due time.
+- **Task Hierarchy**: Create parent-child task relationships using `parent_task_id` for task decomposition.
+- **Task Estimation**: Set estimated completion time in hours for planning and tracking.
+- **Task Complexity**: Rate task complexity from 1-5 to help with prioritization and sprint planning.
+- **Multi-User Support**: Assign tasks to users with `user_id` for scalable team collaboration.
+- **Task Properties**: Each task includes title, description, completed status, urgent flag, due date/time, estimated time (hours), complexity rating (1-5), parent task reference, and optional user assignment.
 
 ### Tag Management
 - **Create Tags**: Add new tags with a unique name and optional color.
@@ -138,7 +142,10 @@ The API provides RESTful endpoints for managing tasks and tags. Access the inter
 ### Tasks Endpoints
 - `GET /get-tasks`: Retrieve all tasks.
 - `POST /create-task`: Create a new task (body: TaskCreate schema).
+  - New optional fields: `estimated_time` (float, hours), `complexity` (int, 1-5), `parent_task_id` (int), `user_id` (int)
 - `PUT /update-task/{task_id}`: Update an existing task (body: TaskCreate schema).
+  - Supports updating all task properties including new fields.
+  - Validates that `parent_task_id` is a valid existing task and prevents self-reference.
 - `PATCH /update-task-status/{task_id}`: Toggle task completion status.
 - `DELETE /del-task/{task_id}`: Delete a task by ID.
 

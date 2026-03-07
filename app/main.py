@@ -4,6 +4,7 @@ from sqlalchemy.exc import OperationalError
 from app.database.database import engine, Base
 from app.routers import tags_router, tasks_router, canvas_router
 from fastapi.middleware.cors import CORSMiddleware
+import time
 
 app = FastAPI()
 
@@ -18,17 +19,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import os
+
 @app.on_event("startup")
 def startup():
-    for _ in range(5):
-        try:
-            Base.metadata.create_all(bind=engine)
-            print("✅ Database connected")
-            return
-        except OperationalError as e:
-            print("⏳ Waiting for database...")
-            time.sleep(2)
-    raise RuntimeError("❌ Database unavailable")
+    print("DATABASE_URL =", os.getenv("DATABASE_URL"))
 
 app.include_router(tags_router.router)
 app.include_router(tasks_router.router)

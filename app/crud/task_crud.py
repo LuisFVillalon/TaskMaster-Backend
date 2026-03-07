@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
+from fastapi import HTTPException
 from app.models.tag_model import Tag as TagModel
 from app.models.task_model import Task as TaskModel
 from app.schemas.task_schema import TaskCreate
@@ -8,7 +9,18 @@ from app.schemas.task_schema import TaskCreate
 def get_tasks(db: Session):
     return db.query(TaskModel).all()
 
+def _validate_parent_task_id(db: Session, parent_task_id: int) -> None:
+    """Validate that parent_task_id exists and is valid."""
+    if parent_task_id is None:
+        return
+    parent_task = db.query(TaskModel).filter(TaskModel.id == parent_task_id).first()
+    if not parent_task:
+        raise HTTPException(status_code=400, detail=f"Parent task with ID {parent_task_id} not found")
+
 def create_task(db: Session, task: TaskCreate):
+    # Validate parent_task_id foreign key constraint
+    _validate_parent_task_id(db, task.parent_task_id)
+    
     # set timestamps explicitly to ensure they're recorded correctly
     now = datetime.now()
     db_task = TaskModel(
@@ -21,6 +33,10 @@ def create_task(db: Session, task: TaskCreate):
         due_time=task.due_time,
         created_date=now,
         completed_date=now if task.completed else None,
+        estimated_time=task.estimated_time,
+        complexity=task.complexity,
+        parent_task_id=task.parent_task_id,
+        user_id=task.user_id,
     )
     for tag_data in task.tags:
         tag = (
@@ -89,7 +105,13 @@ def update_task(db: Session, task_id: int, task: TaskCreate):
     if not db_task:
         return None  # or raise HTTPException(404)
 
-    # 2. Update scalar fields
+    # 2. Validate parent_task_id to prevent self-reference and circular dependencies
+    if task.parent_task_id is not None:
+        if task.parent_task_id == task_id:
+            raise HTTPException(status_code=400, detail="A task cannot be its own parent")
+        _validate_parent_task_id(db, task.parent_task_id)
+
+    # 3. Update scalar fields
     db_task.title = task.title
     db_task.description = task.description
     db_task.category = task.category
@@ -98,11 +120,15 @@ def update_task(db: Session, task_id: int, task: TaskCreate):
     db_task.due_date = task.due_date
     db_task.due_time = task.due_time
     db_task.completed_date = task.completed_date
+    db_task.estimated_time = task.estimated_time
+    db_task.complexity = task.complexity
+    db_task.parent_task_id = task.parent_task_id
+    db_task.user_id = task.user_id
 
-    # 3. Clear existing tags
+    # 4. Clear existing tags
     db_task.tags.clear()
 
-    # 4. Re-attach tags
+    # 5. Re-attach tags
     for tag_data in task.tags:
         tag = (
             db.query(TagModel)
@@ -120,7 +146,7 @@ def update_task(db: Session, task_id: int, task: TaskCreate):
 
         db_task.tags.append(tag)
 
-    # 5. Commit & refresh the DB model
+    # 6. Commit & refresh the DB model
     db.commit()
     db.refresh(db_task)
 

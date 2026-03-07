@@ -16,6 +16,11 @@ class TaskBase(BaseModel):
 
     completed_date: Optional[datetime] = None
 
+    estimated_time: Optional[float] = None
+    complexity: Optional[int] = None
+    parent_task_id: Optional[int] = None
+    user_id: Optional[int] = None
+
     tags: List[Tag] = []
 
     @field_validator("due_date", "due_time", mode="before")
@@ -24,6 +29,24 @@ class TaskBase(BaseModel):
         if v == "":
             return None
         return v
+
+    @field_validator("complexity", mode="before")
+    @classmethod
+    def validate_complexity(cls, v):
+        if v is None:
+            return v
+        if not isinstance(v, int) or v < 1 or v > 5:
+            raise ValueError("Complexity must be an integer between 1 and 5")
+        return v
+
+    @field_validator("estimated_time", mode="before")
+    @classmethod
+    def validate_estimated_time(cls, v):
+        if v is None:
+            return v
+        if not isinstance(v, (int, float)) or v < 0:
+            raise ValueError("Estimated time must be a non-negative number (hours)")
+        return float(v)
 
 
 class TaskCreate(TaskBase):
