@@ -4,10 +4,6 @@ from pydantic import BaseModel, field_validator
 from typing import List, Optional
 from app.schemas.tag_schema import Tag
 
-
-
-
-
 class TaskBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -23,7 +19,7 @@ class TaskBase(BaseModel):
     estimated_time: Optional[float] = None
     complexity: Optional[int] = None
     parent_task_id: Optional[int] = None
-    user_id: Optional[int] = None
+    user_id: Optional[int] = None        
 
     tags: List[Tag] = []
 
@@ -34,33 +30,30 @@ class TaskBase(BaseModel):
             return None
         return v
 
+    @field_validator("estimated_time", mode="before")
+    @classmethod
+    def validate_estimated_time(cls, v):
+        if v is None:
+            return v
+        if isinstance(v, Decimal):
+            v = float(v)
+        if v < 0:
+            raise ValueError("Estimated time must be non-negative")
+        return v
+
     @field_validator("complexity", mode="before")
     @classmethod
     def validate_complexity(cls, v):
         if v is None:
             return v
         if not isinstance(v, int) or v < 1 or v > 5:
-            raise ValueError("Complexity must be an integer between 1 and 5")
+            raise ValueError("Complexity must be 1-5")
         return v
 
-    class TaskBase(BaseModel):
-        estimated_time: Optional[float] = None
-
-        @field_validator("estimated_time", mode="before")
-        @classmethod
-        def validate_estimated_time(cls, v):
-            if v is None:
-                return v
-            if isinstance(v, Decimal):
-                v = float(v)
-            if v < 0:
-                raise ValueError("Estimated time must be a non-negative number (hours)")
-            return v
-
-
 class TaskCreate(TaskBase):
+    parent_task_id: Optional[int] = None
+    user_id: Optional[int] = None
     pass
-
 
 class Task(TaskBase):
     id: int

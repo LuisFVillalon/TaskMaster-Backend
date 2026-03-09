@@ -19,7 +19,7 @@ def _validate_parent_task_id(db: Session, parent_task_id: int) -> None:
 
 def create_task(db: Session, task: TaskCreate):
     # Validate parent_task_id foreign key constraint
-    _validate_parent_task_id(db, task.parent_task_id)
+    # _validate_parent_task_id(db, task.parent_task_id)
     
     # set timestamps explicitly to ensure they're recorded correctly
     now = datetime.now()
