@@ -5,6 +5,9 @@ from app.database.database import engine, Base
 from app.routers import tags_router, tasks_router, canvas_router
 from fastapi.middleware.cors import CORSMiddleware
 import time
+import psycopg2
+from dotenv import load_dotenv
+import os
 
 app = FastAPI()
 
@@ -19,7 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-import os
+
 
 @app.on_event("startup")
 def startup():

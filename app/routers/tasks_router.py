@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List
 from sqlalchemy.orm import Session
+from app.config.supabase_client import supabase
 from app.database.database import get_db
 from app.schemas.task_schema import Task, TaskCreate
 from app.crud.task_crud import get_tasks, create_task, delete_task, update_task_status, update_task
@@ -57,3 +59,35 @@ def update_task_by_id(
         )
 
     return task
+
+@router.post("/save-tasks-list")
+async def create_new_tasks(tasks: List[TaskCreate]):
+
+    created_tasks = []
+
+    for task in tasks:
+        task_data = task.model_dump(mode="json")
+
+        # Extract tags
+        tags = task_data.pop("tags", [])
+
+        # Insert task
+        task_response = supabase.table("tasks").insert(task_data).execute()
+
+        if not task_response.data:
+            raise HTTPException(status_code=400, detail="Task insert failed")
+
+        inserted_task = task_response.data[0]
+        task_id = inserted_task["id"]
+
+        # Insert into task_tags table
+        if tags:
+            tag_rows = [
+                {"task_id": task_id, "tag_id": tag["id"]}
+                for tag in tags
+            ]
+            supabase.table("task_tags").insert(tag_rows).execute()
+
+        created_tasks.append(inserted_task)
+
+    return created_tasks
